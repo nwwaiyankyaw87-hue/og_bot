@@ -41,7 +41,9 @@ app = ApplicationBuilder().token("7024498547:AAHrAySQkINsOCKK4QWh6vZDTQ3KBgU-Sow
 
 app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
-app.run_polling()        reply,
+app.add_handler(MessageHandler(filters.TEXT, handle_message))
+
+app.run_polling()
         reply_markup=ReplyKeyboardRemove()
     )
 
