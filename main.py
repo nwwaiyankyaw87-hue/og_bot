@@ -2,6 +2,8 @@ import json
 from telegram import Update, ReplyKeyboardRemove
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
+BOT_TOKEN = "ဒီနေရာမှာ BotFather token ထည့်ပါ"
+
 with open("database.json", "r", encoding="utf-8") as f:
     raw_data = json.load(f)
 
@@ -35,20 +37,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 Model name ကို ပိုပြည့်စုံစွာ ရိုက်ပါ။
 ဥပမာ - Samsung A12, Vivo Y20, Redmi Note 10"""
 
-    await update.message.reply_text(reply, reply_markup=ReplyKeyboardRemove())
-
-app = ApplicationBuilder().token("7024498547:AAHrAySQkINsOCKK4QWh6vZDTQ3KBgU-Sow").build()
-
-app.add_handler(MessageHandler(filters.TEXT, handle_message))
-
-app.add_handler(MessageHandler(filters.TEXT, handle_message))
-
-app.run_polling()
+    await update.message.reply_text(
+        reply,
         reply_markup=ReplyKeyboardRemove()
     )
 
-app = ApplicationBuilder().token("7024498547:AAHrAySQkINsOCKK4QWh6vZDTQ3KBgU-Sow").build()
-
+app = ApplicationBuilder().token(7024498547:AAHrAySQkINsOCKK4QWh6vZDTQ3KBgU-Sow).build()
 app.add_handler(MessageHandler(filters.TEXT, handle_message))
-
 app.run_polling()
