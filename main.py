@@ -3,7 +3,9 @@ from telegram import Update, ReplyKeyboardRemove
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
 with open("database.json", "r", encoding="utf-8") as f:
-    data = json.load(f)
+    raw_data = json.load(f)
+
+data = raw_data.get("database", raw_data)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_input = update.message.text.lower().strip()
@@ -12,7 +14,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     matched_model = None
 
     for key, value in data.items():
-        key_text = key.lower().strip()
+        key_text = str(key).lower().strip()
 
         if user_input == key_text or user_input in key_text:
             found = value
@@ -33,8 +35,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 Model name ကို ပိုပြည့်စုံစွာ ရိုက်ပါ။
 ဥပမာ - Samsung A12, Vivo Y20, Redmi Note 10"""
 
-    await update.message.reply_text(
-        reply,
+    await update.message.reply_text(reply, reply_markup=ReplyKeyboardRemove())
+
+app = ApplicationBuilder().token("မင်း BOT TOKEN ဒီမှာထည့်").build()
+
+app.add_handler(MessageHandler(filters.TEXT, handle_message))
+
+app.run_polling()        reply,
         reply_markup=ReplyKeyboardRemove()
     )
 
