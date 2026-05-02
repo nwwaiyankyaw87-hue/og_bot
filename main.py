@@ -12,25 +12,35 @@ data = raw_data.get("database", raw_data)
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_input = update.message.text.lower().strip()
 
-    found = None
-    matched_model = None
+    found_item = None
+    matched_alias = None
 
     for key, value in data.items():
         key_text = str(key).lower().strip()
 
         if user_input == key_text or user_input in key_text:
-            found = value
-            matched_model = key
+            found_item = value
+            matched_alias = key
             break
 
-    if found:
+    if found_item:
+        result = found_item["results"][0]
+
+        code = result.get("code", "N/A")
+        model = result.get("model_original", matched_alias)
+        category = result.get("category", "Original Universal")
+        color = result.get("color", "")
+        status = result.get("status", "")
+
         reply = f"""✅ ရှာတွေ့ပါပြီ
 
-📱 Model: {matched_model}
-🛡️ OG Code: {found}
+📱 Model: {model}
+🛡️ OG Code: {code}
+📦 Type: {category}
+🎨 Color: {color}
+✅ Status: {status}
 
-ဆိုင်မှာ {found} လို့ပြောပြီး ဝယ်ယူနိုင်ပါတယ်။
-"""
+ဆိုင်မှာ {code} လို့ပြောပြီး ဝယ်ယူနိုင်ပါတယ်။"""
     else:
         reply = """❌ မတွေ့သေးပါ
 
