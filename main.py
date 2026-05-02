@@ -1,57 +1,95 @@
-import json
-from telegram import Update, ReplyKeyboardRemove
-from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
-BOT_TOKEN = "ဒီနေရာမှာ BotFather token ထည့်ပါ"
+TOKEN = "7024498547:AAHrAySQkINsOCKK4QWh6vZDTQ3KBgU-Sow"
 
-with open("database.json", "r", encoding="utf-8") as f:
-    raw_data = json.load(f)
+# --- SAMPLE DATA ---
+DATA = {
+    "iphone": {
+        "15": {
+            "iPhone 15 Pro Max": "XMT-K104",
+            "iPhone 15 Pro": "XMT-K105"
+        },
+        "16": {
+            "iPhone 16 Pro": "XMT-K200"
+        }
+    },
+    "samsung": {
+        "A Series": {
+            "Samsung A10": "OG-A10",
+            "Samsung A12": "OG-A12"
+        }
+    }
+}
 
-data = raw_data.get("database", raw_data)
+# --- START ---
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [InlineKeyboardButton("🍎 iPhone", callback_data="brand_iphone")],
+        [InlineKeyboardButton("📱 Samsung", callback_data="brand_samsung")]
+    ]
+    await update.message.reply_text(
+        "📌 Brand ကိုရွေးပါ",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_input = update.message.text.lower().strip()
+# --- BUTTON HANDLER ---
+async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
 
-    found_item = None
-    matched_alias = None
+    data = query.data
 
-    for key, value in data.items():
-        key_text = str(key).lower().strip()
+    # -------- BRAND --------
+    if data.startswith("brand_"):
+        brand = data.split("_")[1]
 
-        if user_input == key_text or user_input in key_text:
-            found_item = value
-            matched_alias = key
-            break
+        series_list = DATA.get(brand, {})
+        keyboard = []
 
-    if found_item:
-        result = found_item["results"][0]
+        for series in series_list:
+            keyboard.append([InlineKeyboardButton(series, callback_data=f"series_{brand}_{series}")])
 
-        code = result.get("code", "N/A")
-        model = result.get("model_original", matched_alias)
-        category = result.get("category", "Original Universal")
-        color = result.get("color", "")
-        status = result.get("status", "")
+        await query.edit_message_text(
+            f"📌 {brand.upper()} Series ရွေးပါ",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
 
-        reply = f"""✅ ရှာတွေ့ပါပြီ
+    # -------- SERIES --------
+    elif data.startswith("series_"):
+        _, brand, series = data.split("_")
+
+        models = DATA[brand][series]
+        keyboard = []
+
+        for model in models:
+            keyboard.append([InlineKeyboardButton(model, callback_data=f"model_{brand}_{series}_{model}")])
+
+        await query.edit_message_text(
+            f"📱 Model ရွေးပါ",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+
+    # -------- MODEL --------
+    elif data.startswith("model_"):
+        _, brand, series, model = data.split("_", 3)
+
+        code = DATA[brand][series][model]
+
+        await query.edit_message_text(
+            f"""✅ ရှာတွေ့ပါပြီ
 
 📱 Model: {model}
 🛡️ OG Code: {code}
-📦 Type: {category}
-🎨 Color: {color}
-✅ Status: {status}
+📦 Type: Original Universal
+🎨 Color: BLACK
+✅ Status: Ready"""
+        )
 
-ဆိုင်မှာ {code} လို့ပြောပြီး ဝယ်ယူနိုင်ပါတယ်။"""
-    else:
-        reply = """❌ မတွေ့သေးပါ
+# --- MAIN ---
+app = ApplicationBuilder().token(TOKEN).build()
 
-Model name ကို ပိုပြည့်စုံစွာ ရိုက်ပါ။
-ဥပမာ - Samsung A12, Vivo Y20, Redmi Note 10"""
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CallbackQueryHandler(button))
 
-    await update.message.reply_text(
-        reply,
-        reply_markup=ReplyKeyboardRemove()
-    )
-
-app = ApplicationBuilder().token("7024498547:AAHrAySQkINsOCKK4QWh6vZDTQ3KBgU-Sow").build()
-app.add_handler(MessageHandler(filters.TEXT, handle_message))
 app.run_polling()
