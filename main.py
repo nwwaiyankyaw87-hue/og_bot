@@ -3,7 +3,7 @@ import re
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 
-BOT_TOKEN = "7024498547:AAHrAySQkINsOCKK4QWh6vZDTQ3KBgU-Sow"
+BOT_TOKEN = "7024498547:AAFvqh3H7eePD-XvQNfu2Yr1TkwDrmsjfLc"
 
 BRANDS = ["iPhone", "Samsung", "OPPO", "VIVO", "Redmi", "Realme", "Infinix", "TECNO", "Honor", "Huawei"]
 
