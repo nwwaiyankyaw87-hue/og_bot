@@ -16,25 +16,46 @@ def normalize(text):
     text = text.replace(" ", "")
     return re.sub(r"[^a-z0-9]", "", text)
 
-def split_models(model_text):
+BRAND_PREFIXES = {
+    "IP": "IPHONE",
+    "IPHONE": "IPHONE",
+    "SAM": "SAMSUNG",
+    "OP": "OPPO",
+    "VI": "VIVO",
+    "R-ME": "REALME",
+    "R-MI": "XIAOMI",
+    "MI": "XIAOMI",
+    "POCO": "POCO",
+    "INFI": "INFINIX",
+    "TECNO": "TECNO",
+}
+
+def split_models_with_brand(model_text):
     parts = re.split(r"[/,|]+", str(model_text))
-    return [p.strip() for p in parts if p.strip()]
+    result = []
+    current_brand = ""
 
-with open("database.json", "r", encoding="utf-8") as f:
-    raw = json.load(f)
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
 
-data = raw.get("database", raw)
+        words = part.split()
+        prefix = words[0].upper()
+
+        if prefix in BRAND_PREFIXES:
+            current_brand = BRAND_PREFIXES[prefix]
+            model = part[len(words[0]):].strip()
+        else:
+            model = part
+
+        if model:
+            result.append((current_brand, model))
+
+    return result
 
 ITEMS = []
-BRAND_MAP = {
-    "IP": "iphone",
-    "SAM": "samsung",
-    "OP": "oppo",
-    "VI": "vivo",
-    "R-Me": "realme",
-    "MI": "xiaomi",
-    "RMI": "xiaomi"
-}
+
 for key, value in data.items():
     if not isinstance(value, dict):
         continue
@@ -46,25 +67,16 @@ for key, value in data.items():
         full_model = r.get("model_original", key)
         code = r.get("code", "")
 
-        model_parts = split_models(full_model)
+        for brand, single_model in split_models_with_brand(full_model):
+            search_text = " ".join([brand, single_model] + [str(a) for a in aliases])
 
-    for single_model in model_parts:
-        brand_key = str(key).split()[0].upper()
-
-        brand = BRAND_MAP.get(brand_key, brand_key)
-
-        search_text = " ".join(
-    [brand, str(single_model)] + [str(a) for a in aliases]
-)
-        ITEMS.append({
+            ITEMS.append({
                 "model": single_model,
                 "full_model": full_model,
                 "brand": brand,
                 "code": code,
                 "search": normalize(search_text)
             })
-
-def result_message(item):
     return f"""✅ တွေ့ပါတယ်
 
 📱 Model: {item["model"]}
