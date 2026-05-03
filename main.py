@@ -77,11 +77,12 @@ for key, value in data.items():
                 "code": code,
                 "search": normalize(search_text)
             })
+def result_message(item):
     return f"""✅ တွေ့ပါတယ်
 
-📱 Model: {item["model"]}
-🔑 OG Code: {item["code"]}"""
-
+📱 Model: {item['brand']} • {item['model'].title()}
+🔑 OG Code: {item['code']}"""
+    
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = normalize(update.message.text)
 
