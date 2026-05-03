@@ -38,7 +38,6 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if user_input in item["search"]:
             reply = f"""✅ တွေ့ပါတယ်
 
-📱 Model: {item['model']}
 🔑 OG Code: {item['code']}"""
             await update.message.reply_text(reply)
             return
