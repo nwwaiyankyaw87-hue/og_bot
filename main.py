@@ -1,14 +1,15 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 import json
 import re
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 
 BOT_TOKEN = "7024498547:AAFvqh3H7eePD-XvQNfu2Yr1TkwDrmsjfLc"
 
 def normalize(text):
     text = str(text).lower()
     text = text.replace("iphone", "ip")
-    text = text.replace("pro max", "pm")
+    text = text.replace("pro max", "promax")
+    text = text.replace("pro-max", "promax")
     text = text.replace(" ", "")
     return re.sub(r"[^a-z0-9]", "", text)
 
@@ -20,43 +21,60 @@ data = raw.get("database", raw)
 ITEMS = []
 
 for key, value in data.items():
-    results = value.get("results", []) if isinstance(value, dict) else []
+    if not isinstance(value, dict):
+        continue
+
+    aliases = value.get("aliases", [])
+    results = value.get("results", [])
 
     for r in results:
         model = r.get("model_original", key)
         code = r.get("code", "")
 
+        search_text = " ".join([str(key), str(model), str(code)] + [str(a) for a in aliases])
+
         ITEMS.append({
             "model": model,
             "code": code,
-            "search": normalize(model + " " + key)
+            "search": normalize(search_text)
         })
+
+def result_message(item):
+    return f"""✅ တွေ့ပါတယ်
+
+📱 Model: {item["model"]}
+🔑 OG Code: {item["code"]}"""
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = normalize(update.message.text)
 
-    matches = [item for item in ITEMS if q and q in item["search"]]
+    matches = []
+    seen = set()
+
+    for item in ITEMS:
+        if q and q in item["search"]:
+            key = item["model"] + item["code"]
+            if key not in seen:
+                matches.append(item)
+                seen.add(key)
 
     if not matches:
         await update.message.reply_text("❌ မတွေ့ပါ")
         return
 
     if len(matches) == 1:
-        item = matches[0]
-        await update.message.reply_text(f"""✅ တွေ့ပါတယ်
-
-🔑 OG Code: {item['code']}""")
+        await update.message.reply_text(result_message(matches[0]))
         return
 
     keyboard = []
-    for i, item in enumerate(matches[:10]):
+    for item in matches[:10]:
         idx = ITEMS.index(item)
         keyboard.append([
-            InlineKeyboardButton(item["model"], callback_data=f"select_{idx}")
+            InlineKeyboardButton(item["model"][:50], callback_data=f"select|{idx}")
         ])
 
     await update.message.reply_text(
-        "တူတဲ့ model များတွေ့ပါတယ်။ ဘယ် model လဲ ရွေးပါ။",
+        "တူတဲ့ Model များတွေ့ပါတယ်။ ဘယ် model လဲ ရွေးပါ။",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
@@ -64,30 +82,14 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    idx = int(query.data.replace("select_", ""))
-    item = ITEMS[idx]
+    _, idx = query.data.split("|")
+    item = ITEMS[int(idx)]
 
-    await query.edit_message_text(f"""✅ တွေ့ပါတယ်
-
-🔑 OG Code: {item['code']}""")
+    await query.edit_message_text(result_message(item))
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
 app.add_handler(MessageHandler(filters.TEXT, handle_text))
 app.add_handler(CallbackQueryHandler(handle_button))
 
-app.run_polling()    
-
-for item in ITEMS:
-        if user_input in item["search"]:
-            reply = f"""✅ တွေ့ပါတယ်
-
-🔑 OG Code: {item['code']}"""
-            await update.message.reply_text(reply)
-            return
-
-    await update.message.reply_text("❌ မတွေ့ပါ")
-
-app = ApplicationBuilder().token(BOT_TOKEN).build()
-app.add_handler(MessageHandler(filters.TEXT, handle))
 app.run_polling()
