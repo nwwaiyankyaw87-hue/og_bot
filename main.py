@@ -54,7 +54,8 @@ for key, value in data.items():
         brand = BRAND_MAP.get(brand_key, brand_key)
 
         search_text = " ".join(
-    [brand, str(single_model), str(key)] + [str(a) for a in aliases]
+    [brand, str(single_model)] + [str(a) for a in aliases]
+)
 )
         ITEMS.append({
                 "model": single_model,
