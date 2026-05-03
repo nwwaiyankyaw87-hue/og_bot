@@ -53,11 +53,12 @@ def split_models_with_brand(model_text):
             result.append((current_brand, model))
 
     return result
-
-ITEMS = [with open("database.json", "r", encoding="utf-8") as f:
+with open("database.json", "r", encoding="utf-8") as f:
     raw = json.load(f)
 
-data = raw.get("database", raw)]
+data = raw.get("database", raw)
+
+ITEMS = []
 
 for key, value in data.items():
     if not isinstance(value, dict):
