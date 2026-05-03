@@ -41,7 +41,23 @@ for key, value in data.items():
         model_parts = split_models(full_model)
 
         for single_model in model_parts:
-            search_text = " ".join([str(single_model), str(key)] + [str(a) for a in aliases])
+            brand_key = str(key)[:2].upper()
+
+BRAND_MAP = {
+    "IP": "iphone",
+    "SAM": "samsung",
+    "OP": "oppo",
+    "VI": "vivo",
+    "R-M": "realme",
+    "MI": "xiaomi",
+    "RMI": "xiaomi"
+}
+
+brand = BRAND_MAP.get(brand_key, brand_key)
+
+search_text = " ".join(
+    [brand, str(single_model), str(key)] + [str(a) for a in aliases]
+)
 
             ITEMS.append({
                 "model": single_model,
