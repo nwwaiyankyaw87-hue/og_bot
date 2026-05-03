@@ -5,22 +5,21 @@ from telegram.ext import ApplicationBuilder, MessageHandler, CallbackQueryHandle
 
 BOT_TOKEN = "7024498547:AAFvqh3H7eePD-XvQNfu2Yr1TkwDrmsjfLc"
 
-# ---------- Normalize ----------
 def normalize(text):
     text = str(text).lower()
-
     text = text.replace("iphone", "ip")
     text = text.replace("pro max", "promax")
     text = text.replace("pro-max", "promax")
-
     text = text.replace("samsung", "sam")
     text = text.replace("oppo", "op")
     text = text.replace("vivo", "vi")
-
     text = text.replace(" ", "")
     return re.sub(r"[^a-z0-9]", "", text)
 
-# ---------- Load Database ----------
+def split_models(model_text):
+    parts = re.split(r"[/,|]+", str(model_text))
+    return [p.strip() for p in parts if p.strip()]
+
 with open("database.json", "r", encoding="utf-8") as f:
     raw = json.load(f)
 
@@ -36,25 +35,27 @@ for key, value in data.items():
     results = value.get("results", [])
 
     for r in results:
-        model = r.get("model_original", key)
+        full_model = r.get("model_original", key)
         code = r.get("code", "")
 
-        search_text = " ".join([str(key), str(model), str(code)] + [str(a) for a in aliases])
+        model_parts = split_models(full_model)
 
-        ITEMS.append({
-            "model": model,
-            "code": code,
-            "search": normalize(search_text)
-        })
+        for single_model in model_parts:
+            search_text = " ".join([str(single_model), str(key)] + [str(a) for a in aliases])
 
-# ---------- Output ----------
+            ITEMS.append({
+                "model": single_model,
+                "full_model": full_model,
+                "code": code,
+                "search": normalize(search_text)
+            })
+
 def result_message(item):
     return f"""✅ တွေ့ပါတယ်
 
 📱 Model: {item["model"]}
 🔑 OG Code: {item["code"]}"""
 
-# ---------- Handle Text ----------
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = normalize(update.message.text)
 
@@ -62,7 +63,9 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     seen = set()
 
     for item in ITEMS:
-        if q and q in item["search"]:
+        model_norm = normalize(item["model"])
+
+        if q and q in model_norm:
             key = item["model"] + item["code"]
             if key not in seen:
                 matches.append(item)
@@ -72,12 +75,10 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ မတွေ့ပါ")
         return
 
-    # 👉 One result → show directly
     if len(matches) == 1:
         await update.message.reply_text(result_message(matches[0]))
         return
 
-    # 👉 Multiple → show buttons
     keyboard = []
     for item in matches[:20]:
         idx = ITEMS.index(item)
@@ -90,7 +91,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
-# ---------- Handle Button ----------
 async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -100,7 +100,6 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await query.edit_message_text(result_message(item))
 
-# ---------- Run Bot ----------
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
 app.add_handler(MessageHandler(filters.TEXT, handle_text))
