@@ -97,7 +97,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for item in matches[:20]:
         idx = ITEMS.index(item)
         keyboard.append([
-          InlineKeyboardButton(f"{item['brand'].upper()} • {item['model']}"[:50], callback_data=f"select|{idx}")
+          InlineKeyboardButton(f"{item['brand'].upper()} • {item['model'].title()}"[:50], callback_data=f"select|{idx}")
 
     await update.message.reply_text(
         "တူတဲ့ Model များတွေ့ပါတယ်။ ဘယ် model လဲ ရွေးပါ။",
