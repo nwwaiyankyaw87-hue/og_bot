@@ -26,7 +26,15 @@ with open("database.json", "r", encoding="utf-8") as f:
 data = raw.get("database", raw)
 
 ITEMS = []
-
+BRAND_MAP = {
+    "IP": "iphone",
+    "SAM": "samsung",
+    "OP": "oppo",
+    "VI": "vivo",
+    "R-Me": "realme",
+    "MI": "xiaomi",
+    "RMI": "xiaomi"
+}
 for key, value in data.items():
     if not isinstance(value, dict):
         continue
@@ -40,26 +48,15 @@ for key, value in data.items():
 
         model_parts = split_models(full_model)
 
-        for single_model in model_parts:
-            brand_key = str(key)[:2].upper()
+    for single_model in model_parts:
+        brand_key = str(key).split()[0].upper()
 
-BRAND_MAP = {
-    "IP": "iphone",
-    "SAM": "samsung",
-    "OP": "oppo",
-    "VI": "vivo",
-    "R-M": "realme",
-    "MI": "xiaomi",
-    "RMI": "xiaomi"
-}
+        brand = BRAND_MAP.get(brand_key, brand_key)
 
-brand = BRAND_MAP.get(brand_key, brand_key)
-
-search_text = " ".join(
+        search_text = " ".join(
     [brand, str(single_model), str(key)] + [str(a) for a in aliases]
 )
-
-            ITEMS.append({
+        ITEMS.append({
                 "model": single_model,
                 "full_model": full_model,
                 "code": code,
