@@ -80,7 +80,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         model_norm = normalize(item["model"])
 
         if q and q in model_norm:
-            key = item["model"] + item["code"]
+            key = item["brand"] + item["model"] + item["code"]
             if key not in seen:
                 matches.append(item)
                 seen.add(key)
