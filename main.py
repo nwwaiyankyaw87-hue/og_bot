@@ -59,6 +59,7 @@ for key, value in data.items():
         ITEMS.append({
                 "model": single_model,
                 "full_model": full_model,
+                "brand": brand,
                 "code": code,
                 "search": normalize(search_text)
             })
