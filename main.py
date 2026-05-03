@@ -76,7 +76,9 @@ app = ApplicationBuilder().token(BOT_TOKEN).build()
 app.add_handler(MessageHandler(filters.TEXT, handle_text))
 app.add_handler(CallbackQueryHandler(handle_button))
 
-app.run_polling()    for item in ITEMS:
+app.run_polling()    
+
+for item in ITEMS:
         if user_input in item["search"]:
             reply = f"""✅ တွေ့ပါတယ်
 
