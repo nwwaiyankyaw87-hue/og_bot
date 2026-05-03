@@ -56,7 +56,6 @@ for key, value in data.items():
         search_text = " ".join(
     [brand, str(single_model)] + [str(a) for a in aliases]
 )
-)
         ITEMS.append({
                 "model": single_model,
                 "full_model": full_model,
