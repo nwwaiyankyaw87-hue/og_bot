@@ -1,9 +1,15 @@
+import os
 import json
 import re
+from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 
-BOT_TOKEN = "7024498547:AAFvqh3H7eePD-XvQNfu2Yr1TkwDrmsjfLc"
+# .env file ကို load လုပ်ခြင်း
+load_dotenv()
+
+# Token ကို environment variable ထဲကနေ လှမ်းယူခြင်း
+BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 def normalize(text):
     text = str(text).lower()
