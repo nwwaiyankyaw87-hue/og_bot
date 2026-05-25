@@ -156,9 +156,16 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for item in matches[:20]:
         idx = ITEMS.index(item)
 
+        button_model = item['model'].replace('Moto ', '').title()
+
+        if button_model.upper().startswith("PIXEL"):
+            button_text = "Pixel • " + button_model[5:].strip()
+        else:
+            button_text = f"{item['brand']} • {button_model}"
+
         keyboard.append([
             InlineKeyboardButton(
-                f"{item['brand'].upper()} • {item['model'].title()}"[:50],
+                button_text[:50],
                 callback_data=f"select|{idx}"
             )
         ])
