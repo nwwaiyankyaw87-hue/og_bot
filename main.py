@@ -56,10 +56,10 @@ for brand_prefix, brand_name in BRAND_PREFIXES.items():
         matched = True
         break
 
-if not matched:
-    model = part
-if model:
-    result.append((current_brand, model))
+    if not matched:
+        model = part
+    if model:
+        result.append((current_brand, model))
 
     return result
 with open("database.json", "r", encoding="utf-8") as f:
