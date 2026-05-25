@@ -19,11 +19,11 @@ def normalize(text):
     text = text.replace("samsung", "sam")
     text = text.replace("oppo", "op")
     text = text.replace("vivo", "vi")
-    text = text.replace(" ", "")
     text = text.replace("redmi", "rm")
     text = text.replace("realme", "rme")
-    return re.sub(r"[^a-z0-9]", "", text)
+    text = text.replace(" ", "")
 
+    return re.sub(r"[^a-z0-9]", "", text)
 BRAND_PREFIXES = {
     "IP": "IPHONE",
     "IPHONE": "IPHONE",
