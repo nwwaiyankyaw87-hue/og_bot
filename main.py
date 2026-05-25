@@ -47,15 +47,17 @@ def split_models_with_brand(model_text):
         if not part:
             continue
 
-        words = part.split()
-        prefix = words[0].upper()
+       matched = False
 
-        if prefix in BRAND_PREFIXES:
-            current_brand = BRAND_PREFIXES[prefix]
-            model = part[len(words[0]):].strip()
-        else:
-            model = part
+for brand_prefix, brand_name in BRAND_PREFIXES.items():
+    if part.upper().startswith(brand_prefix):
+        current_brand = brand_name
+        model = part[len(brand_prefix):].strip()
+        matched = True
+        break
 
+if not matched:
+    model = part
         if model:
             result.append((current_brand, model))
 
