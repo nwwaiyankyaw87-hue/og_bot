@@ -87,7 +87,7 @@ def split_models_with_brand(model_text):
             if model:
                 result.append((current_brand, model))
 
-return result
+            return result
 with open("database.json", "r", encoding="utf-8") as f:
     raw = json.load(f)
 
