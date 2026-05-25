@@ -82,7 +82,8 @@ def split_models_with_brand(model_text):
             elif model.upper().startswith(("G", "E", "EDGE", "MOTO")):
                 current_brand = "MOTOROLA"
             if model:
-                result.append((current_brand, model))
+                if current_brand == "MOTOROLA":
+                    model = re.sub(r"^Moto\s+", "", model, flags=re.IGNORECASE)
 
     return result
 with open("database.json", "r", encoding="utf-8") as f:
