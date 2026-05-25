@@ -21,6 +21,7 @@ def normalize(text):
     text = text.replace("vivo", "vi")
     text = text.replace(" ", "")
     text = text.replace("redmi", "rm")
+    text = text.replace("realme", "rme")
     return re.sub(r"[^a-z0-9]", "", text)
 
 BRAND_PREFIXES = {
