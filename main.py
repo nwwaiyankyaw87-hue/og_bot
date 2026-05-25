@@ -124,12 +124,38 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     matches = []
     seen = set()
+
     for item in ITEMS:
         search_norm = item["search"]
 
         if q and q in search_norm:
             key = item["brand"] + item["model"] + item["code"]
 
-        if key not in seen:
-            matches.append(item)
-            seen.add(key)
+            if key not in seen:
+                matches.append(item)
+                seen.add(key)
+
+    if not matches:
+        await update.message.reply_text("❌ မတွေ့ပါ")
+        return
+
+    if len(matches) == 1:
+        await update.message.reply_text(result_message(matches[0]))
+        return
+
+    keyboard = []
+
+    for item in matches[:20]:
+        idx = ITEMS.index(item)
+
+        keyboard.append([
+            InlineKeyboardButton(
+                f"{item['brand'].upper()} • {item['model'].title()}"[:50],
+                callback_data=f"select|{idx}"
+            )
+        ])
+
+    await update.message.reply_text(
+        "တူတဲ့ Model များတွေ့ပါတယ်။ ဘယ် model လဲ ရွေးပါ။",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
