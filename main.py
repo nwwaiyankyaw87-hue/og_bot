@@ -60,9 +60,36 @@ def split_models_with_brand(model_text):
                 matched = True
                 break
 
+        def split_models_with_brand(model_text):
+    parts = re.split(r"[/,|]+", str(model_text))
+    result = []
+    current_brand = ""
+
+    for part in parts:
+        part = part.strip()
+
+        if not part:
+            continue
+
+        matched = False
+
+        for brand_prefix, brand_name in BRAND_PREFIXES.items():
+
+            if part.upper().startswith(brand_prefix):
+
+                current_brand = brand_name
+                model = part[len(brand_prefix):].strip()
+
+                matched = True
+                break
+
         if not matched:
             model = part
 
+        if model:
+            result.append((current_brand, model))
+
+    return result
         if model:
             result.append((current_brand, model))
 
