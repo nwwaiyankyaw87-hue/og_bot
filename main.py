@@ -125,19 +125,19 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     matches = []
     seen = set()
 
-for item in ITEMS:
-    search_norm = normalize(item["brand"] + " " + item["model"])
+    for item in ITEMS:
+        search_norm = normalize(item["brand"] + " " + item["model"])
 
-    key = item["brand"] + item["model"] + item["code"]
+        key = item["brand"] + item["model"] + item["code"]
 
-    if q in search_norm:
-        if key not in seen:
-            matches.append(item)
-            seen.add(key)
+        if q in search_norm:
+            if key not in seen:
+                matches.append(item)
+                seen.add(key)
              
-if not matches:
-    await update.message.reply_text("❌ မတွေ့ပါ")
-    return
+    if not matches:
+        await update.message.reply_text("❌ မတွေ့ပါ")
+        return
 
     if len(matches) == 1:
         await update.message.reply_text(result_message(matches[0]))
