@@ -56,7 +56,10 @@ def split_models_with_brand(model_text):
 
                 current_brand = brand_name
                 model = part[len(brand_prefix):].strip()
-
+                
+                if current_brand == "MOTOROLA":
+                    model = re.sub(r"^MOTO\s+", "", model, flags=re.IGNORECASE)
+                    
                 matched = True
                 break
 
