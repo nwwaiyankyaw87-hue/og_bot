@@ -143,9 +143,9 @@ for item in ITEMS:
             matches.append(item)
             seen.add(key)
              
-        if not matches:
-            await update.message.reply_text("❌ မတွေ့ပါ")
-            return
+    if not matches:
+        await update.message.reply_text("❌ မတွေ့ပါ")
+        return
 
     if len(matches) == 1:
         await update.message.reply_text(result_message(matches[0]))
