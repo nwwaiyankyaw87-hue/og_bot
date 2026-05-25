@@ -51,20 +51,14 @@ def split_models_with_brand(model_text):
         matched = False
 
         for brand_prefix, brand_name in BRAND_PREFIXES.items():
-
             if part.upper().startswith(brand_prefix):
-
                 current_brand = brand_name
                 model = part[len(brand_prefix):].strip()
-                
-                if current_brand == "MOTOROLA":
-                    model = re.sub(r"^MOTO\s+", "", model, flags=re.IGNORECASE)
-                    
                 matched = True
                 break
 
-            if not matched:
-                model = part
+        if not matched:
+            model = part
 
             # TECNO Models
             if model.upper().startswith(("SPARK", "CAMON", "POVA", "POP")):
@@ -81,13 +75,14 @@ def split_models_with_brand(model_text):
             # MOTOROLA Models
             elif model.upper().startswith(("G", "E", "EDGE", "MOTO")):
                 current_brand = "MOTOROLA"
-            if current_brand == "MOTOROLA":
-                model = re.sub(r"^Moto\s+", "", model, flags=re.IGNORECASE)
 
-            if model:
-                result.append((current_brand, model))
+        if current_brand == "MOTOROLA":
+            model = re.sub(r"^Moto\s+", "", model, flags=re.IGNORECASE)
 
-                return result
+        if model:
+            result.append((current_brand, model))
+
+    return result
 with open("database.json", "r", encoding="utf-8") as f:
     raw = json.load(f)
 
