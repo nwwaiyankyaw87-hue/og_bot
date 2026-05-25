@@ -283,38 +283,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
-async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-
-    _, idx = query.data.split("|")
-    item = ITEMS[int(idx)]
-
-    await query.edit_message_text(result_message(item))
-
-app = ApplicationBuilder().token(BOT_TOKEN).build()
-
-app.add_handler(MessageHandler(filters.TEXT, handle_text))
-app.add_handler(CallbackQueryHandler(handle_button))
-
-app.run_polling()
-app.run_polling()
-
-    if len(matches) == 1:
-        await update.message.reply_text(result_message(matches[0]))
-        return
-
-    keyboard = []
-    for item in matches[:20]:
-        idx = ITEMS.index(item)
-        keyboard.append([
-          InlineKeyboardButton(f"{item['brand'].upper()} • {item['model'].title()}"[:50], callback_data=f"select|{idx}")
-        ])
-
-    await update.message.reply_text(
-        "တူတဲ့ Model များတွေ့ပါတယ်။ ဘယ် model လဲ ရွေးပါ။",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
 
 async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -324,6 +292,7 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     item = ITEMS[int(idx)]
 
     await query.edit_message_text(result_message(item))
+
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
