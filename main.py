@@ -130,6 +130,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if q and q in search_norm:
             key = item["brand"] + item["model"] + item["code"]
 
-            if key not in seen:
-                matches.append(item)
-                seen.add(key)
+                if key not in seen:
+                    matches.append(item)
+                    seen.add(key)
