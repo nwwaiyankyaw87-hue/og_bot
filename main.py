@@ -128,7 +128,12 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for item in ITEMS:
         search_norm = item["search"]
 
-        if q and q in normalize(item["model"]):
+        model_norm = normalize(item["model"])
+
+        if q and (
+            model_norm == q
+            or model_norm.startswith(q)
+        ):
             key = item["brand"] + item["model"] + item["code"]
 
             if key not in seen:
