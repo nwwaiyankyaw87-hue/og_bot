@@ -133,16 +133,15 @@ for item in ITEMS:
     words = re.findall(r'[a-z]+|\d+', model_norm)
     query_words = re.findall(r'[a-z]+|\d+', q)
 
-        if query_words and all(
-            any(w.startswith(qw) for w in words)
-            for qw in query_words
-        ):
+    if query_words and all(
+        any(w.startswith(qw) for w in words)
+        for qw in query_words
+    ):
+        key = item["brand"] + item["model"] + item["code"]
 
-            key = item["brand"] + item["model"] + item["code"]
-
-            if key not in seen:
-                matches.append(item)
-                seen.add(key)
+        if key not in seen:
+            matches.append(item)
+            seen.add(key)
              
     if not matches:
         await update.message.reply_text("❌ မတွေ့ပါ")
