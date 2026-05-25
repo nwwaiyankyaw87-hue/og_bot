@@ -34,6 +34,7 @@ BRAND_PREFIXES = {
     "POCO": "POCO",
     "INFI": "INFINIX",
     "TECNO": "TECNO",
+    "1+": "OnePlus",
 }
 
 def split_models_with_brand(model_text):
