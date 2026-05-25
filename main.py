@@ -267,10 +267,15 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     keyboard = []
+
     for item in matches[:20]:
         idx = ITEMS.index(item)
+
         keyboard.append([
-          InlineKeyboardButton(f"{item['brand'].upper()} • {item['model'].title()}"[:50], callback_data=f"select|{idx}")
+            InlineKeyboardButton(
+                f"{item['brand'].upper()} • {item['model'].title()}"[:50],
+                callback_data=f"select|{idx}"
+            )
         ])
 
     await update.message.reply_text(
@@ -292,6 +297,7 @@ app = ApplicationBuilder().token(BOT_TOKEN).build()
 app.add_handler(MessageHandler(filters.TEXT, handle_text))
 app.add_handler(CallbackQueryHandler(handle_button))
 
+app.run_polling()
 app.run_polling()
 
     if len(matches) == 1:
