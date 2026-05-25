@@ -124,7 +124,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     matches = []
     seen = set()
-for item in ITEMS:
+    for item in ITEMS:
     search_norm = item["search"]
 
     if q and q in search_norm:
