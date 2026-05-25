@@ -119,43 +119,20 @@ def result_message(item):
 📱 Model: {item['brand']} • {item['model'].replace('Moto ', '').title()}
 🔑 OG Code: {item['code']}"""
     
-async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = normalize(update.message.text)
+async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
 
-    matches = []
-    seen = set()
+    _, idx = query.data.split("|")
+    item = ITEMS[int(idx)]
 
-    for item in ITEMS:
-        search_norm = item["search"]
+    await query.edit_message_text(result_message(item))
 
-        if q and q in search_norm:
-            key = item["brand"] + item["model"] + item["code"]
 
-            if key not in seen:
-                matches.append(item)
-                seen.add(key)
+app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    if not matches:
-        await update.message.reply_text("❌ မတွေ့ပါ")
-        return
+app.add_handler(MessageHandler(filters.TEXT, handle_text))
+app.add_handler(CallbackQueryHandler(handle_button))
 
-    if len(matches) == 1:
-        await update.message.reply_text(result_message(matches[0]))
-        return
-
-    keyboard = []
-
-    for item in matches[:20]:
-        idx = ITEMS.index(item)
-
-        keyboard.append([
-            InlineKeyboardButton(
-                f"{item['brand'].upper()} • {item['model'].title()}"[:50],
-                callback_data=f"select|{idx}"
-            )
-        ])
-
-    await update.message.reply_text(
-        "တူတဲ့ Model များတွေ့ပါတယ်။ ဘယ် model လဲ ရွေးပါ။",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+print("Bot is running...")
+app.run_polling()
