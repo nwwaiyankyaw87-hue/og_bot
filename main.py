@@ -75,7 +75,7 @@ def split_models_with_brand(model_text):
             elif model.upper().startswith(("NORD", "ACE")):
                 current_brand = "ONEPLUS"
             if model:
-        result.append((current_brand, model))
+                result.append((current_brand, model))
 
     return result
 with open("database.json", "r", encoding="utf-8") as f:
