@@ -114,9 +114,17 @@ for key, value in data.items():
                 "search": normalize(search_text)
             })
 def result_message(item):
+
+    model_text = item['model'].replace('Moto ', '').title()
+
+    if model_text.upper().startswith("PIXEL"):
+        display_name = "Pixel • " + model_text[5:].strip()
+    else:
+        display_name = f"{item['brand']} • {model_text}"
+
     return f"""✅ တွေ့ပါတယ်
 
-📱 Model: {item['brand']} • {item['model'].replace('Moto ', '').title()}
+📱 Model: {display_name}
 🔑 OG Code: {item['code']}"""
     
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
