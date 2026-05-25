@@ -126,19 +126,11 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     seen = set()
 
 for item in ITEMS:
-    search_norm = item["search"]
+    search_norm = normalize(item["brand"] + " " + item["model"])
 
-    model_norm = normalize(item["brand"] + " " + item["model"])
+    key = item["brand"] + item["model"] + item["code"]
 
-    words = re.findall(r'[a-z]+|\d+', model_norm)
-    query_words = re.findall(r'[a-z]+|\d+', q)
-
-    if query_words and all(
-        any(w.startswith(qw) for w in words)
-        for qw in query_words
-    ):
-        key = item["brand"] + item["model"] + item["code"]
-
+    if q in search_norm:
         if key not in seen:
             matches.append(item)
             seen.add(key)
