@@ -116,7 +116,7 @@ for key, value in data.items():
 def result_message(item):
     return f"""✅ တွေ့ပါတယ်
 
-📱 Model: {item['brand']} • {item['model'].title()}
+📱 Model: {item['brand']} • {item['model'].replace('Moto ', '').title()}
 🔑 OG Code: {item['code']}"""
     
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
