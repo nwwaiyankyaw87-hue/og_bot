@@ -60,38 +60,22 @@ def split_models_with_brand(model_text):
                 matched = True
                 break
 
-        def split_models_with_brand(model_text):
-    parts = re.split(r"[/,|]+", str(model_text))
-    result = []
-    current_brand = ""
+            if not matched:
+                model = part
 
-    for part in parts:
-        part = part.strip()
+            # TECNO Models
+            if model.upper().startswith(("SPARK", "CAMON", "POVA", "POP")):
+                current_brand = "TECNO"
 
-        if not part:
-            continue
+            # INFINIX Models
+            elif model.upper().startswith(("HOT", "NOTE", "SMART", "ZERO")):
+                current_brand = "INFINIX"
 
-        matched = False
-
-        for brand_prefix, brand_name in BRAND_PREFIXES.items():
-
-            if part.upper().startswith(brand_prefix):
-
-                current_brand = brand_name
-                model = part[len(brand_prefix):].strip()
-
-                matched = True
-                break
-
-        if not matched:
-            model = part
-
-        if model:
-            result.append((current_brand, model))
-
-    return result
-        if model:
-            result.append((current_brand, model))
+            # ONEPLUS Models
+            elif model.upper().startswith(("NORD", "ACE")):
+                current_brand = "ONEPLUS"
+   if model:
+    result.append((current_brand, model))
 
     return result
 with open("database.json", "r", encoding="utf-8") as f:
