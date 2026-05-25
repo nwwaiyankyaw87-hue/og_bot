@@ -29,7 +29,7 @@ BRAND_PREFIXES = {
     "OP": "OPPO",
     "VI": "VIVO",
     "R-ME": "REALME",
-    "R-MI": "XIAOMI",
+    "R-MI": "RM",
     "MI": "XIAOMI",
     "POCO": "POCO",
     "INFI": "INFINIX",
