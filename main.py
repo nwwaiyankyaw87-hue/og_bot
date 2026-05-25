@@ -171,7 +171,8 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         idx = int(data.split("|")[1])
         item = ITEMS[idx]
 
-        await query.edit_message_reply_markup(reply_markup=None)
+        await query.message.delete()
+
         await query.message.reply_text(result_message(item))
 
 
