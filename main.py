@@ -73,6 +73,10 @@ def split_models_with_brand(model_text):
             # ONEPLUS Models
             elif model.upper().startswith(("NORD", "ACE")):
                 current_brand = "ONEPLUS"
+                
+            # XIAOMI Models
+            elif model.upper().startswith(("MI", "REDMI", "POCO", "CIVI")):
+                current_brand = "XIAOMI"
 
             # MOTOROLA Models
             elif model.upper().startswith(("G", "E", "EDGE", "MOTO")):
