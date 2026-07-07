@@ -218,39 +218,21 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # ================================================================
-    # Admin သို့မဟုတ် Approved ဖြစ်ပြီးသား ဆိုင်များအတွက် Model ရှာဖွေပေးသည့်အပိုင်း
+    # ✅ မူလစနစ်မှန်အတိုင်း မော်ဒယ်ကို တိကျစွာ ရှာဖွေပေးသည့်အပိုင်း
     # ================================================================
-    query = text.strip().lower()
-    
-    # ဆိုင်တွေ ရှာဖွေရလွယ်ကူအောင် စာလုံးအကြီးအသေးနှင့် Space များကို ညှိခြင်း
-    query_clean = query.replace(" ", "")
-
-    # ရှာဖွေတွေ့ရှိသည့် ရလဒ်များ သိမ်းဆည်းရန် List
+    query_clean = normalize(text)
     results = []
 
-    # database.json ထဲက data များကို လိုက်ရှာခြင်း
-    for brand, models in database_data.items():
-        for model_name, item in models.items():
-            model_clean = model_name.lower().replace(" ", "")
-            
-            # ရိုက်လိုက်သည့်စာလုံးသည် database ထဲက model နာမည်နှင့် ကိုက်ညီမှုရှိမရှိ စစ်ဆေးခြင်း
-            if query_clean in model_clean or model_clean in query_clean:
-                # Brand အလိုက် ပြသမည့် Prefix များကို ပြောင်းလဲသတ်မှတ်ခြင်း
-                display_brand = brand
-                if brand.lower() == "redmi":
-                    display_brand = "RM"
-                elif brand.lower() == "realme":
-                    display_brand = "R-Me"
-
-                results.append(
-                    f"📱 **{display_brand} {model_name}**\n"
-                    f"🔑 OG Code: `{item['code']}`"
-                )
+    # မူလ စနစ်တကျ ပြုပြင်ထားသော ITEMS List ထဲတွင် လိုက်ရှာခြင်း
+    for item in ITEMS:
+        if query_clean in item["search"]:
+            results.append(result_message(item))
 
     # ရှာဖွေမှု ရလဒ်များ ပြန်လည်ပေးပို့ခြင်း
     if results:
-        response_text = "🔍 **ရှာဖွေတွေ့ရှိရလဒ်များ**\n\n" + "\n\n".join(results)
-        await update.message.reply_text(response_text, parse_mode="Markdown")
+        # ရလဒ်များကို စာကြောင်းခြားပြီး တစ်ခါတည်း ပို့ပေးမည်
+        response_text = "\n\n" + "\n\n====================\n\n".join(results)
+        await update.message.reply_text(response_text)
     else:
         await update.message.reply_text(
             "❌ လူကြီးမင်းရှာဖွေနေသော မော်ဒယ်အား ရှာမတွေ့ပါခင်ဗျာ။\n"
