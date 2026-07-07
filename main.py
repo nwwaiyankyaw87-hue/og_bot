@@ -198,7 +198,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             keyboard = [
                 [
-                    InlineKeyboardButton("✅ ခွင့်ပြုမည်", callback_data=f"approve_{user_id}"),
+                    InlineKeyboardButton("✅ ขွင့်ပြုမည်", callback_data=f"approve_{user_id}"),
                     InlineKeyboardButton("❌ ငြင်းပယ်မည်", callback_data=f"reject_{user_id}")
                 ]
             ]
@@ -218,20 +218,20 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # ================================================================
-    # ✅ မူလစနစ်မှန်အတိုင်း မော်ဒယ်ကို တိကျစွာ ရှာဖွေပေးသည့်အပိုင်း
+    # ✅ [အမှန်ကန်ဆုံး ပြင်ဆင်ချက်] ITEMS ကို သုံးပြီး Model ရှာဖွေပေးသည့်အပိုင်း
     # ================================================================
     query_clean = normalize(text)
     results = []
 
-    # မူလ စနစ်တကျ ပြုပြင်ထားသော ITEMS List ထဲတွင် လိုက်ရှာခြင်း
+    # မူလစနစ်မှန်အတိုင်း အပေါ်မှာ အဆင်သင့် ဖွဲ့စည်းထားသော ITEMS List ထဲတွင် လိုက်ရှာခြင်း
     for item in ITEMS:
         if query_clean in item["search"]:
             results.append(result_message(item))
 
     # ရှာဖွေမှု ရလဒ်များ ပြန်လည်ပေးပို့ခြင်း
     if results:
-        # ရလဒ်များကို စာကြောင်းခြားပြီး တစ်ခါတည်း ပို့ပေးမည်
-        response_text = "\n\n" + "\n\n====================\n\n".join(results)
+        # ရလဒ်များကို စနစ်တကျ ခွဲခြားပြီး ပို့ပေးမည်
+        response_text = "\n\n====================\n\n".join(results)
         await update.message.reply_text(response_text)
     else:
         await update.message.reply_text(
