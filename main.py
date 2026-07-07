@@ -177,8 +177,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Admin မဟုတ်လျှင် ဆိုင်အချက်အလက် စစ်ဆေးမည့်အပိုင်း
     if int(user_id) != ADMIN_ID and (user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") != "approved"):
-        
-        # Enter ခေါက်ပြီး ရိုက်ထားသည့် စာကြောင်းများကို ခွဲထုတ်ခြင်း
         lines = [line.strip() for line in text.strip().split("\n") if line.strip()]
         
         if len(lines) >= 3:
@@ -194,7 +192,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"📱 Viber No: {viber_no}"
             )
             
-            # ခွင့်ပြုရန်/ငြင်းပယ်ရန် ခလုတ်များ ပြုလုပ်ခြင်း
             keyboard = [
                 [
                     InlineKeyboardButton("✅ ခွင့်ပြုမည်", callback_data=f"approve_{user_id}"),
@@ -203,20 +200,16 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
             
-            # အစ်ကို့ (Admin) ဆီသို့ စာလှမ်းပို့ခြင်း
             await context.bot.send_message(chat_id=ADMIN_ID, text=admin_text, reply_markup=reply_markup)
-            
-            # ဆိုင်ရှင်အသစ်ထံ စာပြန်ခြင်း
             await update.message.reply_text("⏳ သင့်ဆိုင်အတွက် ခွင့်ပြုချက်တောင်းဆိုမှုအား Admin မှ စိစစ်နေပါသည် ခဏစောင့်ဆိုင်းပေးပါဦးဗျာ။")
             
         else:
-            # ၃ ကြောင်း ပြည့်အောင် မရိုက်လျှင် ပြသမည့်စာ
             await update.message.reply_text(
                 "⚠️ ကျေးဇူးပြု၍ ပြထားသည့်အတိုင်း -\n\n"
                 "ဆိုင်နာမည်\n"
                 "မြို့နယ်\n"
                 "(ဝယ်ယူနေကျ) Viber No.\n\n"
-                "တို့ကို တစ်ကြောင်းချင်းစီ အောက်ဆင်းပြီး သေချာစွာ ရိုက်ထည့်ပေးပါခဗျာ။"
+                "တို့ကို တစ်ကြောင်းချင်းစီ အောက်ဆင်းပြီး သေချာစွာ ရိုက်ထည့်ပေးပါခဗျာ।"
             )
         return
 
