@@ -159,44 +159,69 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(
         "👋 မင်္ဂလာပါခင်ဗျာ။ IT'S ME OG Glass Universal List Bot မှ ကြိုဆိုပါတယ်။\n\n"
-        "⚠️ ဒီဗော့တ်ကို လက်ကားဖြန့်ချိထားတဲ့ ဖုန်းဆိုင်များသာ သုံးခွင့်ရှိပါတယ်။ "
-        "ဗော့တ်အသုံးပြုခွင့်ရရှိရန် အောက်ပါပုံစံအတိုင်း စာပြန်ပေးပါဦးဗျာ။\n\n"
-        "**[ ဆိုင်အမည် - ဖုန်းနံပါတ် ]**\n"
-        "ဥပမာ - New Wave Mobile - 091234567"
+        "⚠️ ဒီBotကို KWY's Accessories မှ OG Glass ဝယ်ယူသူများအတွက်သီးသန့် Bot လေးဖြစ်ပါတယ်။ "
+        "BOT အသုံးပြုခွင့်ရရှိရန် အောက်ပါပုံစံအတိုင်း ဖြည့်ပေးပါဦးခဗျာ။\n\n"
+        "ဆိုင်နာမည်\n"
+        "မြို့နယ်\n"
+        "(ဝယ်ယူနေကျ) Viber No.\n\n"
+        "ဥပမာ -\n"
+        "New Wave Mobile\n"
+        "အလုံ\n"
+        "09890080106"
     )
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
-    user_text = update.message.text.strip()
+    user_name = update.effective_user.first_name
+    text = update.message.text
 
-    # သုံးခွင့်ရှိ/မရှိ အရင်စစ်ဆေးခြင်း
+    # Admin မဟုတ်လျှင် ဆိုင်အချက်အလက် စစ်ဆေးမည့်အပိုင်း
     if int(user_id) != ADMIN_ID and (user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") != "approved"):
-        if user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") == "pending":
-            if "-" in user_text:
-                ALLOWED_USERS[user_id] = {
-                    "info": user_text,
-                    "status": "pending",
-                    "username": update.effective_user.username or "No Username"
-                }
-                save_allowed_users(ALLOWED_USERS)
-                await update.message.reply_text("✅ အချက်အလက်များ ရရှိပါပြီ။ Admin မှ အတည်ပြုပေးသည်နှင့် စတင်အသုံးပြုနိုင်မည်ဖြစ်ပါသည်။")
-                
-                if ADMIN_ID != 0:
-                    keyboard = [
-                        [
-                            InlineKeyboardButton("Allow ✅", callback_data=f"adm|allow|{user_id}"),
-                            InlineKeyboardButton("Block ❌", callback_data=f"adm|block|{user_id}")
-                        ]
-                    ]
-                    await context.bot.send_message(
-                        chat_id=ADMIN_ID,
-                        text=f"🔔 **• ဆိုင်အသစ် သုံးခွင့်တောင်းဆိုချက် •**\n\n🏪 အချက်အလက်: {user_text}\n🆔 TG ID: `{user_id}`\n👤 Username: @{ALLOWED_USERS[user_id]['username']}",
-                        reply_markup=InlineKeyboardMarkup(keyboard),
-                        parse_mode="Markdown"
-                    )
-            else:
-                await update.message.reply_text("⚠️ ကျေးဇူးပြု၍ ပြထားသည့်အတိုင်း **[ ဆိုင်အမည် - ဖုန်းနံပါတ် ]** ပုံစံအတိုင်း သေချာစွာ ရိုက်ထည့်ပေးပါ။")
-            return
+        
+        # Enter ခေါက်ပြီး ရိုက်ထားသည့် စာကြောင်းများကို ခွဲထုတ်ခြင်း
+        lines = [line.strip() for line in text.strip().split("\n") if line.strip()]
+        
+        if len(lines) >= 3:
+            shop_name = lines[0]
+            township = lines[1]
+            viber_no = lines[2]
+            
+            admin_text = (
+                f"🚨 **ခွင့်ပြုချက်တောင်းခံလွှာသစ်**\n\n"
+                f"👤 တောင်းခံသူ: {user_name} (ID: {user_id})\n"
+                f"🏪 ဆိုင်နာမည်: {shop_name}\n"
+                f"📍 မြို့နယ်: {township}\n"
+                f"📱 Viber No: {viber_no}"
+            )
+            
+            # ခွင့်ပြုရန်/ငြင်းပယ်ရန် ခလုတ်များ ပြုလုပ်ခြင်း
+            keyboard = [
+                [
+                    InlineKeyboardButton("✅ ခွင့်ပြုမည်", callback_data=f"approve_{user_id}"),
+                    InlineKeyboardButton("❌ ငြင်းပယ်မည်", callback_data=f"reject_{user_id}")
+                ]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            # အစ်ကို့ (Admin) ဆီသို့ စာလှမ်းပို့ခြင်း
+            await context.bot.send_message(chat_id=ADMIN_ID, text=admin_text, reply_markup=reply_markup)
+            
+            # ဆိုင်ရှင်အသစ်ထံ စာပြန်ခြင်း
+            await update.message.reply_text("⏳ သင့်ဆိုင်အတွက် ခွင့်ပြုချက်တောင်းဆိုမှုအား Admin မှ စိစစ်နေပါသည် ခဏစောင့်ဆိုင်းပေးပါဦးဗျာ။")
+            
+        else:
+            # ၃ ကြောင်း ပြည့်အောင် မရိုက်လျှင် ပြသမည့်စာ
+            await update.message.reply_text(
+                "⚠️ ကျေးဇူးပြု၍ ပြထားသည့်အတိုင်း -\n\n"
+                "ဆိုင်နာမည်\n"
+                "မြို့နယ်\n"
+                "(ဝယ်ယူနေကျ) Viber No.\n\n"
+                "တို့ကို တစ်ကြောင်းချင်းစီ အောက်ဆင်းပြီး သေချာစွာ ရိုက်ထည့်ပေးပါခဗျာ။"
+            )
+        return
+
+    # ----------------------------------------------------------------
+    # ဒီအောက်ပိုင်းမှာတော့ အစ်ကို့ရဲ့ Model ရှာဖွေတဲ့ Code အဟောင်းတွေ ပုံမှန်အတိုင်း ဆက်ရှိနေပါလိမ့်မယ်
         else:
             await update.message.reply_text("⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်ထားပါသည်။")
             return
