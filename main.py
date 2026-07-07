@@ -209,103 +209,112 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "ဆိုင်နာမည်\n"
                 "မြို့နယ်\n"
                 "(ဝယ်ယူနေကျ) Viber No.\n\n"
-                "တို့ကို တစ်ကြောင်းချင်းစီ အောက်ဆင်းပြီး သေချာစွာ ရိုက်ထည့်ပေးပါခဗျာ।"
+                "တို့ကို တစ်ကြောင်းချင်းစီ အောက်ဆင်းပြီး သေချာစွာ ရိုက်ထည့်ပေးပါခဗျာ။"
             )
         return
 
- 
-        else:
-            await update.message.reply_text("⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်ထားပါသည်။")
-            return
+    # ================================================================
+    # Admin သို့မဟုတ် Approved ဖြစ်ပြီးသား ဆိုင်များအတွက် Model ရှာဖွေပေးသည့်အပိုင်း
+    # ================================================================
+    query = text.strip().lower()
+    
+    # ဆိုင်တွေ ရှာဖွေရလွယ်ကူအောင် စာလုံးအကြီးအသေးနှင့် Space များကို ညှိခြင်း
+    query_clean = query.replace(" ", "")
+
+    # ရှာဖွေတွေ့ရှိသည့် ရလဒ်များ သိမ်းဆည်းရန် List
+    results = []
+
+    # database.json ထဲက data များကို လိုက်ရှာခြင်း
+    for brand, models in database_data.items():
+        for model_name, item in models.items():
+            model_clean = model_name.lower().replace(" ", "")
+            
+            # ရိုက်လိုက်သည့်စာလုံးသည် database ထဲက model နာမည်နှင့် ကိုက်ညီမှုရှိမရှိ စစ်ဆေးခြင်း
+            if query_clean in model_clean or model_clean in query_clean:
+                # Brand အလိုက် ပြသမည့် Prefix များကို ပြောင်းလဲသတ်မှတ်ခြင်း
+                display_brand = brand
+                if brand.lower() == "redmi":
+                    display_brand = "RM"
+                elif brand.lower() == "realme":
+                    display_brand = "R-Me"
+
+                results.append(
+                    f"📱 **{display_brand} {model_name}**\n"
+                    f"🔑 OG Code: `{item['code']}`"
+                )
+
+    # ရှာဖွေမှု ရလဒ်များ ပြန်လည်ပေးပို့ခြင်း
+    if results:
+        response_text = "🔍 **ရှာဖွေတွေ့ရှိရလဒ်များ**\n\n" + "\n\n".join(results)
+        await update.message.reply_text(response_text, parse_mode="Markdown")
+    else:
+        await update.message.reply_text(
+            "❌ လူကြီးမင်းရှာဖွေနေသော မော်ဒယ်အား ရှာမတွေ့ပါခင်ဗျာ။\n"
+            "စာလုံးပေါင်း မှန်ကန်စွာဖြင့် ထပ်မံရှာဖွေကြည့်ပေးပါဦး။"
+        )
 
 
-    q = normalize(user_text)
-    matches = []
-    seen = set()
-
-    for item in ITEMS:
-        search_norm = normalize(item["brand"] + " " + item["model"])
-        key = item["brand"] + item["model"] + item["code"]
-
-        if q in search_norm:
-            if key not in seen:
-                matches.append(item)
-                seen.add(key)
-                 
-    if not matches:
-        await update.message.reply_text("❌ မတွေ့ပါ")
-        return
-
-    if len(matches) == 1:
-        await update.message.reply_text(result_message(matches[0]))
-        return
-
-    keyboard = []
-    for item in matches[:20]:
-        idx = ITEMS.index(item)
-        button_model = item['model'].replace('Moto ', '').title()
-
-        if button_model.upper().startswith("PIXEL"):
-            button_text = "Pixel • " + button_model[5:].strip()
-        else:
-            button_text = f"{item['brand']} • {button_model}"
-
-        keyboard.append([InlineKeyboardButton(button_text[:50], callback_data=f"select|{idx}")])
-
-    await update.message.reply_text(
-        "တူတဲ့ Model များတွေ့ပါတယ်။ ဘယ် model လဲ ရွေးပါ။",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
-
-async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def callback_query_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
+    
     data = query.data
-
-    if data.startswith("select|"):
-        idx = int(data.split("|")[1])
-        item = ITEMS[idx]
-        await query.message.delete()
-        await query.message.reply_text(result_message(item))
-        return
-
-    # Admin ခလုတ်များအတွက် ထပ်တိုးချက်
-    if data.startswith("adm|"):
-        if update.effective_user.id != ADMIN_ID:
-            return
+    user_id = str(query.from_user.id)
+    
+    # ဆိုင်ရှင်များကို အတည်ပြုခြင်း (Approve) နှင့် ငြင်းပယ်ခြင်း (Reject) လုပ်ငန်းစဉ်များ
+    if int(user_id) == ADMIN_ID:
+        if data.startswith("approve_"):
+            target_id = data.replace("approve_", "")
             
-        action, target_id = data.split("|")[1], data.split("|")[2]
-        if target_id not in ALLOWED_USERS:
-            await query.edit_message_text("❌ ဤအသုံးပြုသူ၏ အချက်အလက်ကို ရှာမတွေ့တော့ပါ။")
-            return
-
-        if action == "allow":
+            # JSON ထဲတွင် status အား approved ပြောင်းလဲသိမ်းဆည်းခြင်း
+            if target_id not in ALLOWED_USERS:
+                ALLOWED_USERS[target_id] = {}
             ALLOWED_USERS[target_id]["status"] = "approved"
             save_allowed_users(ALLOWED_USERS)
-            await query.edit_message_text(f"✅ အသုံးပြုခွင့်ပေးလိုက်ပါပြီ-\n{ALLOWED_USERS[target_id]['info']}")
-            try:
-                await context.bot.send_message(
-                    chat_id=int(target_id),
-                    text="🎉 မင်္ဂလာပါ! အသုံးပြုခွင့် တောင်းဆိုမှုကို Admin မှ အတည်ပြုပေးလိုက်ပါပြီ။ ယခုမှစ၍ စတင်ရှာဖွေနိုင်ပါပြီဗျာ။"
-                )
-            except Exception: pass
-
-        elif action == "block":
-            ALLOWED_USERS[target_id]["status"] = "blocked"
+            
+            await query.edit_message_text(text=f"✅ User ID: {target_id} အား ဗော့တ်သုံးခွင့် ပြုလိုက်ပါပြီ။")
+            await context.bot.send_message(chat_id=int(target_id), text="🎉 မင်္ဂလာပါဗျာ။ Admin မှ လူကြီးမင်းအား ဗော့တ်အသုံးပြုခွင့် ပေးလိုက်ပါပြီ။ ယခုမှစ၍ ဖုန်းမော်ဒယ်များကို စတင်ရိုက်နှိပ်ရှာဖွေနိုင်ပါပြီခင်ဗျာ။")
+            
+        elif data.startswith("reject_"):
+            target_id = data.replace("reject_", "")
+            
+            if target_id not in ALLOWED_USERS:
+                ALLOWED_USERS[target_id] = {}
+            ALLOWED_USERS[target_id]["status"] = "rejected"
             save_allowed_users(ALLOWED_USERS)
-            await query.edit_message_text(f"❌ ပိတ်ပင် (Block) လိုက်ပါပြီ-\n{ALLOWED_USERS[target_id]['info']}")
-            try:
-                await context.bot.send_message(
-                    chat_id=int(target_id),
-                    text="⛔️ သင့်၏ဗော့တ်အသုံးပြုခွင့်ကို Admin မှ ငြင်းပယ်လိုက်ပါသည်။"
-                )
-            except Exception: pass
+            
+            await query.edit_message_text(text=f"❌ User ID: {target_id} အား ငြင်းပယ်လိုက်ပါပြီ။")
+            await context.bot.send_message(chat_id=int(target_id), text="⚠️ စိတ်မရှိပါနဲ့ခင်ဗျာ။ လူကြီးမင်း၏ တောင်းဆိုမှုအား Admin မှ ငြင်းပယ်လိုက်ပါသည်။")
 
 
-app = ApplicationBuilder().token(BOT_TOKEN).build()
+def main():
+    # ရေးထားသော Bot Token အား ပတ်ဝန်းကျင်ကနေ ဖတ်ယူခြင်း
+    TOKEN = os.getenv("TELEGRAM_TOKEN")
+    if not TOKEN:
+        print("Error: TELEGRAM_TOKEN environment variable is not set.")
+        return
 
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
-app.add_handler(CallbackQueryHandler(handle_button))
+    # global database object အား တင်ဆက်ခြင်း
+    global database_data
+    try:
+        with open("database.json", "r", encoding="utf-8") as f:
+            database_data = json.load(f)
+    except Exception as e:
+        print(f"Error loading database.json: {e}")
+        database_data = {}
 
-print("Bot started...")
-app.run_polling()
+    app = ApplicationBuilder().token(TOKEN).build()
+
+    # Command နှင့် Message Handler များ ထည့်သွင်းခြင်း
+    from telegram.ext import CommandHandler
+    app.add_handler(CommandHandler("start", start_command))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
+    app.add_handler(CallbackQueryHandler(callback_query_handler))
+
+    print("Bot is running...")
+    app.run_polling()
+
+if __name__ == "__main__":
+    # python-telegram-bot v20+ အတွက် စစ်ဆေးချက်များ ပြုလုပ်ရန် filters တင်သွင်းခြင်း
+    from telegram.ext import filters
+    main()
