@@ -220,8 +220,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         return
 
-    # ----------------------------------------------------------------
-    # ဒီအောက်ပိုင်းမှာတော့ အစ်ကို့ရဲ့ Model ရှာဖွေတဲ့ Code အဟောင်းတွေ ပုံမှန်အတိုင်း ဆက်ရှိနေပါလိမ့်မယ်
+ 
         else:
             await update.message.reply_text("⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်ထားပါသည်။")
             return
