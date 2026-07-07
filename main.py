@@ -8,7 +8,7 @@ from telegram.ext import ApplicationBuilder, MessageHandler, CallbackQueryHandle
 # .env file ကို load လုပ်ခြင်း
 load_dotenv()
 
-ADMIN_ID = int(os.getenv("ADMIN_ID", "0")) 
+ADMIN_ID = int(os.getenv("ADMIN_ID", "0").strip()) 
 USERS_FILE = "allowed_users.json"
 
 def load_allowed_users():
