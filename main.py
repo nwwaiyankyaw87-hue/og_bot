@@ -225,7 +225,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်ထားပါသည်။")
             return
 
-    # အောက်ကအပိုင်းကတော့ မူလ အစ်ကို့ရဲ့ ရှာဖွေရေး ကုဒ်တွေအတိုင်း ပြန်ဆက်သွားတာပါ
+
     q = normalize(user_text)
     matches = []
     seen = set()
