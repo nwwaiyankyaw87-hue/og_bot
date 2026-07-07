@@ -184,9 +184,13 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             township = lines[1]
             viber_no = lines[2]
             
+            username = f"@{update.effective_user.username}" if update.effective_user.username else "မရှိပါ"
+            
             admin_text = (
                 f"🚨 **ခွင့်ပြုချက်တောင်းခံလွှာသစ်**\n\n"
-                f"👤 တောင်းခံသူ: {user_name} (ID: {user_id})\n"
+                f"👤 တောင်းခံသူ: {user_name}\n"
+                f"🆔 Telegram ID: `{user_id}`\n"
+                f"🏷️ Username: {username}\n"
                 f"🏪 ဆိုင်နာမည်: {shop_name}\n"
                 f"📍 မြို့နယ်: {township}\n"
                 f"📱 Viber No: {viber_no}"
