@@ -218,7 +218,7 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     )
                 except Exception:
                     pass
- async def reset_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def reset_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
         return
 
