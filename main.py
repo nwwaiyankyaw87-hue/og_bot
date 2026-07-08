@@ -237,7 +237,7 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
 app.add_handler(CommandHandler("start", start_command))
-app.add_handler(CommandHandler("reset", reset_user))  # <--- ဒီ handler လေး ပါရပါမည်
+app.add_handler(CommandHandler("reset", reset_user))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 app.add_handler(CallbackQueryHandler(handle_button))
 
