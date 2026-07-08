@@ -208,10 +208,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်ထားပါသည်။")
             return
 
-ခုကဘယ်လိုဖြစ်နေလဲဆိုတော့
-async def start_command က ငါလိုချင်တဲ့ပုံစံ
-async def handle_text က ငါမလိုချင်ဘဲ အခုဖြစ်နေတဲ့ ပုံစံ
-အဲဒါကို ဘယ်လိုလုပရမလဲ 
 
             except Exception: pass
 
