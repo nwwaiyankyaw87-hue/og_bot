@@ -3,7 +3,7 @@ import json
 import re
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, MessageHandler, CallbackQueryHandler, filters, ContextTypes
+from telegram.ext import ApplicationBuilder, MessageHandler, CallbackQueryHandler, CommandHandler, filters, ContextTypes
 
 # .env file ကို load လုပ်ခြင်း
 load_dotenv()
@@ -161,8 +161,13 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "👋 မင်္ဂလာပါခင်ဗျာ။ IT'S ME OG Glass Universal List Bot မှ ကြိုဆိုပါတယ်။\n\n"
         "⚠️ ဒီဗော့တ်ကို လက်ကားဖြန့်ချိထားတဲ့ ဖုန်းဆိုင်များသာ သုံးခွင့်ရှိပါတယ်။ "
         "ဗော့တ်အသုံးပြုခွင့်ရရှိရန် အောက်ပါပုံစံအတိုင်း စာပြန်ပေးပါဦးဗျာ။\n\n"
-        "**[ ဆိုင်အမည် - ဖုန်းနံပါတ် ]**\n"
-        "ဥပမာ - New Wave Mobile - 091234567"
+        "ဆိုင်နာမည်\n"
+        "မြို့နယ်\n"
+        "(ဝယ်ယူနေကျ) Viber No.\n\n"
+        "ဥပမာ -\n"
+        "New Wave Mobile\n"
+        "အလုံ\n"
+        "09890080106"
     )
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -287,6 +292,7 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
+app.add_handler(CommandHandler("start", start_command))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 app.add_handler(CallbackQueryHandler(handle_button))
 
