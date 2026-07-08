@@ -158,9 +158,9 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     await update.message.reply_text(
-        "👋 မင်္ဂလာပါခင်ဗျာ။ IT'S ME OG Glass Universal List Bot မှ ကြိုဆိုပါတယ်။\n\n"
-        "⚠️ ဒီဗော့တ်ကို လက်ကားဖြန့်ချိထားတဲ့ ဖုန်းဆိုင်များသာ သုံးခွင့်ရှိပါတယ်။ "
-        "ဗော့တ်အသုံးပြုခွင့်ရရှိရန် အောက်ပါပုံစံအတိုင်း စာပြန်ပေးပါဦးဗျာ။\n\n"
+        "👋 မင်္ဂလာပါခင်ဗျာ။ IT'S ME OG Glass Universal List Bot မှ ကြိုဆိုပါတယ်ခဗျာ။\n\n"
+        "⚠️ ယခု BOT အား KWY's Accessoriesမှ OG Glass ဝယ်ယူထားသော Customerများသုံးရန်အတွက်သာ "
+        "BOT အသုံးပြုခွင့်ရရန် အောက်ပါအတိုင်း Register ပြုလုပ်ပါ။ \n\n"
         "ဆိုင်နာမည်\n"
         "မြို့နယ်\n"
         "(ဝယ်ယူနေကျ) Viber No.\n\n"
