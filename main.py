@@ -172,48 +172,47 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 ("✅ အချက်အလက်များ ရရှိပါပြီ။ Admin မှ အတည်ပြုပေးသည်နှင့် စတင်အသုံးပြုနိုင်မည်ဖြစ်ပါသည်။")
 
-async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    data = query.data
+async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = str(update.effective_user.id)
+    user_text = update.message.text.strip()
 
-    if data.startswith("select|"):
-        idx = int(data.split("|")[1])
-        item = ITEMS[idx]
-        await query.message.delete()
-        await query.message.reply_text(result_message(item))
-        return
-
-    # Admin ခလုတ်များအတွက် ထပ်တိုးချက်
-    if data.startswith("adm|"):
-        if update.effective_user.id != ADMIN_ID:
+    # သုံးခွင့်ရှိ/မရှိ အရင်စစ်ဆေးခြင်း
+    if int(user_id) != ADMIN_ID and (user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") != "approved"):
+        if user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") == "pending":
+            if "-" in user_text:
+                ALLOWED_USERS[user_id] = {
+                    "info": user_text,
+                    "status": "pending",
+                    "username": update.effective_user.username or "No Username"
+                }
+                save_allowed_users(ALLOWED_USERS)
+                await update.message.reply_text("✅ အချက်အလက်များ ရရှိပါပြီ။ Admin မှ အတည်ပြုပေးသည်နှင့် စတင်အသုံးပြုနိုင်မည်ဖြစ်ပါသည်။")
+                
+                if ADMIN_ID != 0:
+                    keyboard = [
+                        [
+                            InlineKeyboardButton("Allow ✅", callback_data=f"adm|allow|{user_id}"),
+                            InlineKeyboardButton("Block ❌", callback_data=f"adm|block|{user_id}")
+                        ]
+                    ]
+                    await context.bot.send_message(
+                        chat_id=ADMIN_ID,
+                        text=f"🔔 **• ဆိုင်အသစ် သုံးခွင့်တောင်းဆိုချက် •**\n\n🏪 အချက်အလက်: {user_text}\n🆔 TG ID: `{user_id}`\n👤 Username: @{ALLOWED_USERS[user_id]['username']}",
+                        reply_markup=InlineKeyboardMarkup(keyboard),
+                        parse_mode="Markdown"
+                    )
+            else:
+                await update.message.reply_text("⚠️ ကျေးဇူးပြု၍ ပြထားသည့်အတိုင်း **[ ဆိုင်အမည် - ဖုန်းနံပါတ် ]** ပုံစံအတိုင်း သေချာစွာ ရိုက်ထည့်ပေးပါ။")
             return
-            
-        action, target_id = data.split("|")[1], data.split("|")[2]
-        if target_id not in ALLOWED_USERS:
-            await query.edit_message_text("❌ ဤအသုံးပြုသူ၏ အချက်အလက်ကို ရှာမတွေ့တော့ပါ။")
+        else:
+            await update.message.reply_text("⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်ထားပါသည်။")
             return
 
-        if action == "allow":
-            ALLOWED_USERS[target_id]["status"] = "approved"
-            save_allowed_users(ALLOWED_USERS)
-            await query.edit_message_text(f"✅ အသုံးပြုခွင့်ပေးလိုက်ပါပြီ-\n{ALLOWED_USERS[target_id]['info']}")
-            try:
-                await context.bot.send_message(
-                    chat_id=int(target_id),
-                    text="🎉 မင်္ဂလာပါ! အသုံးပြုခွင့် တောင်းဆိုမှုကို Admin မှ အတည်ပြုပေးလိုက်ပါပြီ။ ယခုမှစ၍ စတင်ရှာဖွေနိုင်ပါပြီဗျာ။"
-                )
-            except Exception: pass
+ခုကဘယ်လိုဖြစ်နေလဲဆိုတော့
+async def start_command က ငါလိုချင်တဲ့ပုံစံ
+async def handle_text က ငါမလိုချင်ဘဲ အခုဖြစ်နေတဲ့ ပုံစံ
+အဲဒါကို ဘယ်လိုလုပရမလဲ 
 
-        elif action == "block":
-            ALLOWED_USERS[target_id]["status"] = "blocked"
-            save_allowed_users(ALLOWED_USERS)
-            await query.edit_message_text(f"❌ ပိတ်ပင် (Block) လိုက်ပါပြီ-\n{ALLOWED_USERS[target_id]['info']}")
-            try:
-                await context.bot.send_message(
-                    chat_id=int(target_id),
-                    text="⛔️ သင့်၏ဗော့တ်အသုံးပြုခွင့်ကို Admin မှ ငြင်းပယ်လိုက်ပါသည်။"
-                )
             except Exception: pass
 
 
