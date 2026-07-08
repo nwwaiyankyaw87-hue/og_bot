@@ -195,15 +195,15 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             InlineKeyboardButton("Block ❌", callback_data=f"adm|block|{user_id}")
                         ]
                     ]
-                try:
-                    await context.bot.send_message(
-                        chat_id=ADMIN_ID,
-                        text=f"🔔 **• ဆိုင်အသစ် သုံးခွင့်တောင်းဆိုချက် •**\n\n🏪 အချက်အလက်: {user_text}\n🆔 TG ID: `{user_id}`\n👤 Username: @{ALLOWED_USERS[user_id]['username']}",
-                        reply_markup=InlineKeyboardMarkup(keyboard),
-                        parse_mode="Markdown"
-                    )
-                except Exception:
-                    pass                    
+                    try:
+                        await context.bot.send_message(
+                            chat_id=ADMIN_ID,
+                            text=f"🔔 **• ဆိုင်အသစ် သုံးခွင့်တောင်းဆိုချက် •**\n\n🏪 အချက်အလက်: {user_text}\n🆔 TG ID: `{user_id}`\n👤 Username: @{ALLOWED_USERS[user_id]['username']}",
+                            reply_markup=InlineKeyboardMarkup(keyboard),
+                            parse_mode="Markdown"
+                        )
+                    except Exception:
+                        pass
             else:
                 await update.message.reply_text("⚠️ ကျေးဇူးပြု၍ ပြထားသည့်အတိုင်း **[ ဆိုင်အမည် - ဖုန်းနံပါတ် ]** ပုံစံအတိုင်း သေချာစွာ ရိုက်ထည့်ပေးပါ။")
             return
