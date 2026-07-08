@@ -176,8 +176,15 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # သုံးခွင့်ရှိ/မရှိ အရင်စစ်ဆေးခြင်း
     if int(user_id) != ADMIN_ID and (user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") != "approved"):
-        if user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") == "pending":
-            if "-" in user_text:
+        if user_id in ALLOWED_USERS and ALLOWED_USERS[user_id].get("status") == "pending":
+            await update.message.reply_text("⏳ သင့်ဆိုင်အတွက် ခွင့်ပြုချက်တောင်းဆိုထားမှုအား Admin မှ စိစစ်နေဆဲဖြစ်ပါသည်။ ခေတ္တစောင့်ဆိုင်းပေးပါ။")
+            return
+        elif user_id in ALLOWED_USERS and ALLOWED_USERS[user_id].get("status") == "blocked":
+            await update.message.reply_text("⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်ထားပါသည်။")
+            return
+        else:
+            lines = [line.strip() for line in user_text.split("\n") if line.strip()]
+            if len(lines) >= 3:
                 ALLOWED_USERS[user_id] = {
                     "info": user_text,
                     "status": "pending",
@@ -195,15 +202,21 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     ]
                     await context.bot.send_message(
                         chat_id=ADMIN_ID,
-                        text=f"🔔 **• ဆိုင်အသစ် သုံးခွင့်တောင်းဆိုချက် •**\n\n🏪 အချက်အလက်: {user_text}\n🆔 TG ID: `{user_id}`\n👤 Username: @{ALLOWED_USERS[user_id]['username']}",
+                        text=f"🔔 **• ဆိုင်အသစ် သုံးခွင့်တောင်းဆိုချက် •**\n\n🏪 အချက်အလက်:\n{user_text}\n\n🆔 TG ID: `{user_id}`\n👤 Username: @{ALLOWED_USERS[user_id]['username']}",
                         reply_markup=InlineKeyboardMarkup(keyboard),
                         parse_mode="Markdown"
                     )
             else:
-                await update.message.reply_text("⚠️ ကျေးဇူးပြု၍ ပြထားသည့်အတိုင်း **[ ဆိုင်အမည် - ဖုန်းနံပါတ် ]** ပုံစံအတိုင်း သေချာစွာ ရိုက်ထည့်ပေးပါ။")
-            return
-        else:
-            await update.message.reply_text("⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်ထားပါသည်။")
+                await update.message.reply_text(
+                    "⚠️ ကျေးဇူးပြု၍ စာလိုင်း (၃) လိုင်း အတိအကျဖြင့် ပြထားသည့် ပုံစံအတိုင်း ဖြည့်ပေးပါဦးဗျာ။\n\n"
+                    "ဆိုင်နာမည်\n"
+                    "မြို့နယ်\n"
+                    "(ဝယ်ယူနေကျ) Viber No.\n\n"
+                    "ဥပမာ -\n"
+                    "New Wave Mobile\n"
+                    "အလုံ\n"
+                    "09890080106"
+                )
             return
 
     # အောက်ကအပိုင်းကတော့ မူလ အစ်ကို့ရဲ့ ရှာဖွေရေး ကုဒ်တွေအတိုင်း ပြန်ဆက်သွားတာပါ
