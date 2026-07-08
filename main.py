@@ -204,7 +204,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             else:
                 await update.message.reply_text("⚠️ ကျေးဇူးပြု၍ ပြထားသည့်အတိုင်း **[ ဆိုင်အမည် - ဖုန်းနံပါတ် ]** ပုံစံအတိုင်း သေချာစွာ ရိုက်ထည့်ပေးပါ။")
             return
-            else:
+                else:
                 await update.message.reply_text("⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်ထားပါသည်။")
             return
             except Exception: pass
