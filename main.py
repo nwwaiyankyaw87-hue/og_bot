@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 
-# .env file ကို load လုပ်ခြင်း
 load_dotenv()
 
 ADMIN_ID = int(os.getenv("ADMIN_ID", "0").strip()) 
@@ -22,13 +21,8 @@ def save_allowed_users(users_data):
         json.dump(users_data, f, ensure_ascii=False, indent=4)
 
 ALLOWED_USERS = load_allowed_users()
-
-# Token ကို environment variable ထဲကနေ လှမ်းယူခြင်း
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-# ================================================================
-# 🎯 အစ်ကို့ရဲ့ မူလ normalize (လုံးဝ မပြောင်းလဲထားပါ)
-# ================================================================
 def normalize(text):
     text = str(text).lower()
     text = text.replace("iphone", "ip")
@@ -168,7 +162,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_name = update.effective_user.first_name
     text = update.message.text
 
-    # 🔒 Admin အကောင့် သို့မဟုတ် Approved ဖြစ်ပြီးသားဆိုင်များ မဟုတ်ပါက စစ်ဆေးမည့် အပိုင်း
     if int(user_id) != ADMIN_ID and (user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") != "approved"):
         lines = [line.strip() for line in text.strip().split("\n") if line.strip()]
         
@@ -221,9 +214,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         return
 
-    # ================================================================
-    # 🔍 မူလ အစ်ကို့ရဲ့ မော်ဒယ်ရှာဖွေရေး စနစ် (အတိုင်းမပျက်)
-    # ================================================================
     query_clean = normalize(text)
     results = []
 
