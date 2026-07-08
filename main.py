@@ -170,6 +170,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "09890080106"
     )
 
+("✅ အချက်အလက်များ ရရှိပါပြီ။ Admin မှ အတည်ပြုပေးသည်နှင့် စတင်အသုံးပြုနိုင်မည်ဖြစ်ပါသည်။")
 
 async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -217,27 +218,13 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     )
                 except Exception:
                     pass
-async def reset_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.id != ADMIN_ID:
-        return
-
-    if context.args:
-        target_id = context.args[0]
-        if target_id in ALLOWED_USERS:
-            del ALLOWED_USERS[target_id]
-            save_allowed_users(ALLOWED_USERS)
-            await update.message.reply_text(f"✅ ID: `{target_id}` အား သုံးစွဲခွင့် တောင်းဆိုချက် အသစ်ပြန်လုပ်နိုင်အောင် Reset လုပ်လိုက်ပါပြီ။", parse_mode="Markdown")
-        else:
-            await update.message.reply_text("❌ ဒီ ID ကို database ထဲမှာ မတွေ့ပါ။")
-    else:
-        await update.message.reply_text("⚠️ `/reset <User_ID>` ပုံစံအတိုင်း ရိုက်ပေးပါ။")
-
+        
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
 app.add_handler(CommandHandler("start", start_command))
-app.add_handler(CommandHandler("reset", reset_user))
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 app.add_handler(CallbackQueryHandler(handle_button))
 
 print("Bot started...")
-app.run_polling()       
+app.run_polling()
