@@ -172,44 +172,52 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 ("✅ အချက်အလက်များ ရရှိပါပြီ။ Admin မှ အတည်ပြုပေးသည်နှင့် စတင်အသုံးပြုနိုင်မည်ဖြစ်ပါသည်။")
 
-async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = str(update.effective_user.id)
-    user_text = update.message.text.strip()
+async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    data = query.data
 
-    # သုံးခွင့်ရှိ/မရှိ အရင်စစ်ဆေးခြင်း
-    if int(user_id) != ADMIN_ID and (user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") != "approved"):
-        if user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") == "pending":
-            if "-" in user_text:
-                ALLOWED_USERS[user_id] = {
-                    "info": user_text,
-                    "status": "pending",
-                    "username": update.effective_user.username or "No Username"
-                }
+    if data.startswith("select|"):
+        idx = int(data.split("|")[1])
+        item = ITEMS[idx]
+        await query.message.delete()
+        await query.message.reply_text(result_message(item))
+        return
+
+    # Admin ခလုတ်များ (Allow / Block)
+    if data.startswith("adm|"):
+        if update.effective_user.id != ADMIN_ID:
+            return
+
+        action, target_id = data.split("|")[1], data.split("|")[2]
+
+        if action == "allow":
+            if target_id in ALLOWED_USERS:
+                ALLOWED_USERS[target_id]["status"] = "approved"
                 save_allowed_users(ALLOWED_USERS)
-                await update.message.reply_text("✅ အချက်အလက်များ ရရှိပါပြီ။ Admin မှ အတည်ပြုပေးသည်နှင့် စတင်အသုံးပြုနိုင်မည်ဖြစ်ပါသည်။")
+                await query.edit_message_text(f"✅ TG ID: `{target_id}` အား သုံးခွင့်ပြုလိုက်ပါပြီ။", parse_mode="Markdown")
                 
-                if ADMIN_ID != 0:
-                    keyboard = [
-                        [
-                            InlineKeyboardButton("Allow ✅", callback_data=f"adm|allow|{user_id}"),
-                            InlineKeyboardButton("Block ❌", callback_data=f"adm|block|{user_id}")
-                        ]
-                    ]
-                    try:
-                        await context.bot.send_message(
-                            chat_id=ADMIN_ID,
-                            text=f"🔔 **• ဆိုင်အသစ် သုံးခွင့်တောင်းဆိုချက် •**\n\n🏪 အချက်အလက်: {user_text}\n🆔 TG ID: `{user_id}`\n👤 Username: @{ALLOWED_USERS[user_id]['username']}",
-                            reply_markup=InlineKeyboardMarkup(keyboard),
-                            parse_mode="Markdown"
-                        )
-                    except Exception:
-                        pass
-            else:
-                await update.message.reply_text("⚠️ ကျေးဇူးပြု၍ ပြထားသည့်အတိုင်း **[ ဆိုင်အမည် - ဖုန်းနံပါတ် ]** ပုံစံအတိုင်း သေချာစွာ ရိုက်ထည့်ပေးပါ။")
-            return
-        else:
-            await update.message.reply_text("⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်ထားပါသည်။")
-            return
+                try:
+                    await context.bot.send_message(
+                        chat_id=int(target_id),
+                        text="🎉 ဝမ်းမြောက်စွာဖြင့် အကြောင်းကြားအပ်ပါသည်။ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပြုလိုက်ပါပြီ။ ရှာဖွေလိုသည့် ဖုန်းမော်ဒယ်ကို ရိုက်ထည့်နိုင်ပါပြီ။"
+                    )
+                except Exception:
+                    pass
+
+        elif action == "block":
+            if target_id in ALLOWED_USERS:
+                ALLOWED_USERS[target_id]["status"] = "blocked"
+                save_allowed_users(ALLOWED_USERS)
+                await query.edit_message_text(f"❌ TG ID: `{target_id}` အား ပိတ်ပင်လိုက်ပါပြီ။", parse_mode="Markdown")
+                
+                try:
+                    await context.bot.send_message(
+                        chat_id=int(target_id),
+                        text="⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်လိုက်ပါသည်။"
+                    )
+                except Exception:
+                    pass
         
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
