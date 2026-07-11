@@ -170,38 +170,42 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.message.text.strip()
 
     # သုံးခွင့်ရှိ/မရှိ အရင်စစ်ဆေးခြင်း
-    if int(user_id) != ADMIN_ID and (user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") != "approved"):
-        if user_id not in ALLOWED_USERS or ALLOWED_USERS[user_id].get("status") == "pending":
-            if "-" in user_text:
-                ALLOWED_USERS[user_id] = {
-                    "info": user_text,
-                    "status": "pending",
-                    "username": update.effective_user.username or "No Username"
-                }
-                save_allowed_users(ALLOWED_USERS)
-                await update.message.reply_text("✅ အချက်အလက်များ ရရှိပါပြီ။ Admin မှ အတည်ပြုပေးသည်နှင့် စတင်အသုံးပြုနိုင်မည်ဖြစ်ပါသည်။")
-                
-                if ADMIN_ID != 0:
-                    keyboard = [
-                        [
-                            InlineKeyboardButton("Allow ✅", callback_data=f"adm|allow|{user_id}"),
-                            InlineKeyboardButton("Block ❌", callback_data=f"adm|block|{user_id}")
-                        ]
-                    ]
-                    await context.bot.send_message(
-                        chat_id=ADMIN_ID,
-                        text=f"🔔 **• ဆိုင်အသစ် သုံးခွင့်တောင်းဆိုချက် •**\n\n🏪 အချက်အလက်: {user_text}\n🆔 TG ID: `{user_id}`\n👤 Username: @{ALLOWED_USERS[user_id]['username']}",
-                        reply_markup=InlineKeyboardMarkup(keyboard),
-                        parse_mode="Markdown"
-                    )
-            else:
-                await update.message.reply_text("⚠️ ကျေးဇူးပြု၍ ပြထားသည့်အတိုင်း **[ ဆိုင်အမည် - ဖုန်းနံပါတ် ]** ပုံစံအတိုင်း သေချာစွာ ရိုက်ထည့်ပေးပါ။")
-            return
-        else:
+    if int(user_id) != ADMIN_ID and (user_id not in ALLOWED_USERS or ALLOWED_USERS.get(user_id, {}).get("status") != "approved"):
+        if user_id in ALLOWED_USERS and ALLOWED_USERS[user_id].get("status") == "blocked":
             await update.message.reply_text("⛔️ သင့်အား ဗော့တ်အသုံးပြုခွင့် ပိတ်ပင်ထားပါသည်။")
             return
 
-    # အောက်ကအပိုင်းကတော့ မူလ အစ်ကို့ရဲ့ ရှာဖွေရေး ကုဒ်တွေအတိုင်း ပြန်ဆက်သွားတာပါ
+        if user_id in ALLOWED_USERS and ALLOWED_USERS[user_id].get("status") == "pending":
+            await update.message.reply_text("⏳ သင့်ဆိုင်အတွက် ခွင့်ပြုချက်တောင်းဆိုထားမှုအား Admin မှ စိစစ်နေဆဲဖြစ်ပါသည်။ ခေတ္တစောင့်ဆိုင်းပေးပါ။")
+            return
+
+        if "-" in user_text:
+            ALLOWED_USERS[user_id] = {
+                "info": user_text,
+                "status": "pending",
+                "username": update.effective_user.username or "No Username"
+            }
+            save_allowed_users(ALLOWED_USERS)
+            await update.message.reply_text("✅ အချက်အလက်များ ရရှိပါပြီ။ Admin မှ အတည်ပြုပေးသည်နှင့် စတင်အသုံးပြုနိုင်မည်ဖြစ်ပါသည်။")
+            
+            if ADMIN_ID != 0:
+                keyboard = [
+                    [
+                        InlineKeyboardButton("Allow ✅", callback_data=f"adm|allow|{user_id}"),
+                        InlineKeyboardButton("Block ❌", callback_data=f"adm|block|{user_id}")
+                    ]
+                ]
+                await context.bot.send_message(
+                    chat_id=ADMIN_ID,
+                    text=f"🔔 **• ဆိုင်အသစ် သုံးခွင့်တောင်းဆိုချက် •**\n\n🏪 အချက်အလက်: {user_text}\n🆔 TG ID: `{user_id}`\n👤 Username: @{ALLOWED_USERS[user_id]['username']}",
+                    reply_markup=InlineKeyboardMarkup(keyboard),
+                    parse_mode="Markdown"
+                )
+        else:
+            await update.message.reply_text("⚠️ ကျေးဇူးပြု၍ ပြထားသည့်အတိုင်း **[ ဆိုင်အမည် - ဖုန်းနံပါတ် ]** ပုံစံအတိုင်း သေချာစွာ ရိုက်ထည့်ပေးပါ။")
+        return
+
+    # မူလ အစ်ကို့ရဲ့ ရှာဖွေရေး ကုဒ်များ
     q = normalize(user_text)
     matches = []
     seen = set()
@@ -239,7 +243,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "တူတဲ့ Model များတွေ့ပါတယ်။ ဘယ် model လဲ ရွေးပါ။",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
-
 async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -284,12 +287,24 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
             except Exception: pass
 
+async def reset_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return
 
+    if context.args:
+        target_id = str(context.args[0]).strip()
+        if target_id in ALLOWED_USERS:
+            del ALLOWED_USERS[target_id]
+            save_allowed_users(ALLOWED_USERS)
+            await update.message.reply_text(f"✅ ID: `{target_id}` အား သုံးစွဲခွင့် တောင်းဆိုချက် အသစ်ပြန်လုပ်နိုင်အောင် Reset လုပ်လိုက်ပါပြီ။", parse_mode="Markdown")
+        else:
+            await update.message.reply_text("❌ ဒီ ID ကို database ထဲမှာ မတွေ့ပါ။")
+    else:
+        await update.message.reply_text("⚠️ `/reset <User_ID>` ပုံစံအတိုင်း ရိုက်ပေးပါ။")
+        
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
+app.add_handler(CommandHandler("start", start_command))
+app.add_handler(CommandHandler("reset", reset_user))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 app.add_handler(CallbackQueryHandler(handle_button))
-
-print(f"Loaded {len(ITEMS)} models")
-print("Bot started...")
-app.run_polling()
