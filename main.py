@@ -9,7 +9,7 @@ from telegram.ext import ApplicationBuilder, MessageHandler, CallbackQueryHandle
 load_dotenv()
 
 ADMIN_ID = int(os.getenv("ADMIN_ID", "0").strip()) 
-USERS_FILE = "allowed_users.json"
+USERS_FILE = "/data/allowed_users.json"
 
 def load_allowed_users():
     if os.path.exists(USERS_FILE):
